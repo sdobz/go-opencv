@@ -127,3 +127,48 @@ func FitEllipse2(points unsafe.Pointer) Box2D {
 	angle := float32(box.angle)
 	return Box2D{center, size, angle}
 }
+
+/*****************************************************************************\
+*                                  Feature Detection                          *
+\*****************************************************************************/
+
+// void cvGoodFeaturesToTrack(const CvArr* image, CvArr* eig_image, CvArr* temp_image, CvPoint2D32f* corners, int* corner_count, double quality_level, double min_distance, const CvArr* mask=NULL, int block_size=3, int use_harris=0, double k=0.04 )
+func GoodFeaturesToTrack(image *IplImage, cornerCount int, qualityLevel float64, minDistance float64, mask *IplImage, blockSize int, useHarris bool, k float64) ([]Point2D32f) {
+	if cornerCount <= 0 {
+		return []Point2D32f{}
+	}
+
+	corners_c := make([]C.CvPoint2D32f, cornerCount)
+	cornerCount_c := C.int(cornerCount)
+
+	useHarris_c := C.int(0)
+	if useHarris {
+		useHarris_c = C.int(1)
+	}
+
+	C.cvGoodFeaturesToTrack(
+		unsafe.Pointer(image),
+		nil,
+		nil,
+		(*C.CvPoint2D32f)(&corners_c[0]),
+		&cornerCount_c,
+		C.double(qualityLevel),
+		C.double(minDistance),
+		unsafe.Pointer(mask),
+		C.int(blockSize),
+		useHarris_c,
+		C.double(k))
+
+	cornerCount = int(cornerCount_c)
+
+	// Surely this can be done with a clever cast
+	corners := make([]Point2D32f, cornerCount)
+	for i := 0; i < cornerCount; i++ {
+		corners[i] = Point2D32f{
+			X: float32(corners_c[i].x),
+			Y: float32(corners_c[i].y),
+		}
+	}
+	
+	return corners
+}
