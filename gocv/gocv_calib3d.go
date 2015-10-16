@@ -1,8 +1,5 @@
 package gocv
 
-// #cgo CXXFLAGS: -std=c++11
-// #cgo darwin pkg-config: opencv
-// #cgo linux  pkg-config: opencv
 import "C"
 import "github.com/gonum/matrix/mat64"
 
@@ -24,11 +21,11 @@ func GcvInitCameraMatrix2D(objPts, imgPts *mat64.Dense, dims [2]int,
 	imgPtsVec := NewGcvPoint2f32Vector(int64(nObjPts))
 
 	for j := 0; j < nObjPts; j++ {
-		objPtsVec.Set(j, NewGcvPoint3f32(objPts.Col(nil, j)...))
+		objPtsVec.Set(j, NewGcvPoint3f32(mat64.Col(nil, j, objPts)...))
 	}
 
 	for j := 0; j < nObjPts; j++ {
-		imgPtsVec.Set(j, NewGcvPoint2f32(imgPts.Col(nil, j)...))
+		imgPtsVec.Set(j, NewGcvPoint2f32(mat64.Col(nil, j, imgPts)...))
 	}
 
 	_imgSize := NewGcvSize2i(dims[0], dims[1])
@@ -52,11 +49,11 @@ func GcvCalibrateCamera(objPts, imgPts, camMat, distCoeffs *mat64.Dense,
 	imgPtsVec := NewGcvPoint2f32Vector(int64(nObjPts))
 
 	for j := 0; j < nObjPts; j++ {
-		objPtsVec.Set(j, NewGcvPoint3f32(objPts.Col(nil, j)...))
+		objPtsVec.Set(j, NewGcvPoint3f32(mat64.Col(nil, j, objPts)...))
 	}
 
 	for j := 0; j < nObjPts; j++ {
-		imgPtsVec.Set(j, NewGcvPoint2f32(imgPts.Col(nil, j)...))
+		imgPtsVec.Set(j, NewGcvPoint2f32(mat64.Col(nil, j, objPts)...))
 	}
 
 	_camMat := Mat64ToGcvMat(camMat)
